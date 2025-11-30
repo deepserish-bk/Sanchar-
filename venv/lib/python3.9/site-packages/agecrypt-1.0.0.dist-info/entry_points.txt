@@ -1,0 +1,2 @@
+[console_scripts]
+agecrypt = agecrypt.agecrypt:main
