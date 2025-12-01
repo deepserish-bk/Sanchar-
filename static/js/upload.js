@@ -15,11 +15,21 @@ const sendBtn = document.getElementById('send-btn');
 const expirySelect = document.getElementById('expiry-select');
 const passwordInput = document.getElementById('password-input');
 
-// FIXED: Clicking password or expiry NEVER opens file picker
+// PREVENT file picker when clicking password, expiry, or encrypt button
 passwordInput.addEventListener('click', e => e.stopPropagation());
 passwordInput.addEventListener('focus', e => e.stopPropagation());
 expirySelect.addEventListener('click', e => e.stopPropagation());
-expirySelect.addEventListener('focus', e => e.stopPropagation());
+sendBtn.addEventListener('click', e => e.stopPropagation());
+
+// Only the drop zone itself (not controls) opens file picker
+dropZone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', () => {
+  files.push(...fileInput.files);
+  [...fileInput.files].forEach(addFileToList);
+  updateSummary();
+  fileInput.value = '';
+});
 
 function formatBytes(bytes) {
   if (bytes === 0) return '0 Bytes';
@@ -40,19 +50,20 @@ function updateSummary() {
   if (files.length === 0) { summary.textContent = ''; return; }
   const total = files.reduce((a, f) => a + f.size, 0);
   summary.textContent = files.length === 1 
-    ? (translations[currentLang]?.one_file_ready?.replace('{size}', formatBytes(total)) || `1 file ready • ${formatBytes(total)}`)
-    : (translations[currentLang]?.files_ready?.replace('{n}', files.length).replace('{size}', formatBytes(total)) || `${files.length} files ready • ${formatBytes(total)}`);
+    ? `1 file ready • ${formatBytes(total)}`
+    : `${files.length} files ready • ${formatBytes(total)}`;
 }
 
 function addFileToList(file) {
   const div = document.createElement('div');
   div.className = 'file-item';
   div.innerHTML = `
-    <span class="file-icon">Check</span>
+    <span class="file-icon">Checkmark</span>
     <div class="file-info">
       <div class="file-name">${file.name}</div>
       <div class="file-size">${formatBytes(file.size)}</div>
-    </div>`;
+    </div>
+  `;
   fileList.appendChild(div);
 }
 
@@ -67,20 +78,11 @@ function addFileToList(file) {
   dropZone.classList.remove('drag-over');
   dropText.textContent = translations[currentLang]?.drop_here || 'Drop files here or click to upload';
 }));
-
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   files.push(...e.dataTransfer.files);
   [...e.dataTransfer.files].forEach(addFileToList);
   updateSummary();
-});
-
-dropZone.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', () => {
-  files.push(...fileInput.files);
-  [...fileInput.files].forEach(addFileToList);
-  updateSummary();
-  fileInput.value = '';
 });
 
 // Beautiful success modal
@@ -110,7 +112,7 @@ function showSuccess(link, keyB64, hasPassword = false) {
   document.body.appendChild(modal);
 }
 
-// Encryption + upload
+// Encryption (your working version)
 async function deriveKey(password, salt) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
