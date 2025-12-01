@@ -1,0 +1,20 @@
+{
+  "en": {
+    "drop_here": "Drop files here or click to upload",
+    "drag_over": "Yes! Release to drop",
+    "one_file_ready": "1 file ready to send ({size})",
+    "files_ready": "{n} files ready to send ({size})"
+  },
+  "it": {
+    "drop_here": "Rilascia i file qui o clicca per caricare",
+    "drag_over": "Perfetto! Rilascia ora",
+    "one_file_ready": "1 file pronto per l'invio ({size})",
+    "files_ready": "{n} file pronti per l'invio ({size})"
+  },
+  "ne": {
+    "drop_here": "यहाँ फाइलहरू छोड्नुहोस् वा अपलोड गर्न क्लिक गर्नुहोस्",
+    "drag_over": "छोड्नुहोस्!",
+    "one_file_ready": "१ फाइल पठाउन तयार ({size})",
+    "files_ready": "{n} फाइलहरू पठाउन तयार ({size})"
+  }
+}
