@@ -9,23 +9,22 @@
 <body>
   <div class="container">
     <h1>Sanchar</h1>
-    <p class="subtitle">Your files are encrypted • Enter key to decrypt</p>
+    <p class="subtitle">Secure file sharing • Nepal → Italy</p>
 
     <div class="drop-zone" style="padding: 40px; max-width: 600px;">
       <div class="upload-icon">Lock</div>
-      <p>Paste the decryption key below</p>
+      <p>Enter the decryption key to download your files</p>
 
-      <input type="text" id="key-input" placeholder="Decryption key (base64)" style="margin: 1rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
-      <input type="password" id="password-input" placeholder="Password (if set)" style="margin: 0.5rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
+      <input type="text" id="key-input" placeholder="Paste decryption key here" style="margin: 1rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
+      <input type="password" id="password-input" placeholder="Password (if you set one)" style="margin: 0.5rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
 
-      <button id="decrypt-btn">Decrypt & Download Files</button>
+      <button id="decrypt-btn">Decrypt & Download</button>
 
       <div id="file-list" class="file-list" style="margin-top: 2rem;"></div>
     </div>
 
     <footer>
-      Made with ❤️ from Nepal to Italy<br>
-      <small>Decryption happens in your browser • No data leaves your device</small>
+      Made with love from Nepal to Italy
     </footer>
   </div>
 

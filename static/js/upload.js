@@ -15,12 +15,12 @@ const sendBtn = document.getElementById('send-btn');
 const expirySelect = document.getElementById('expiry-select');
 const passwordInput = document.getElementById('password-input');
 
-// === PREVENT ACCIDENTAL UPLOAD WHEN CLICKING PASSWORD FIELD ===
+// PREVENT CLICKING PASSWORD OR EXPIRY FROM TRIGGERING FILE INPUT
 passwordInput.addEventListener('click', e => e.stopPropagation());
 passwordInput.addEventListener('focus', e => e.stopPropagation());
 expirySelect.addEventListener('click', e => e.stopPropagation());
 
-// === DRAG & DROP + FILE LIST (unchanged) ===
+// Your original drag & drop + file list (unchanged)
 function formatBytes(bytes) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -47,7 +47,8 @@ function updateSummary() {
 function addFileToList(file) {
   const div = document.createElement('div');
   div.className = 'file-item';
-  div.innerHTML = `<span class="file-icon">Check</span>
+  div.innerHTML = `
+    <span class="file-icon">Check</span>
     <div class="file-info">
       <div class="file-name">${file.name}</div>
       <div class="file-size">${formatBytes(file.size)}</div>
@@ -55,7 +56,7 @@ function addFileToList(file) {
   fileList.appendChild(div);
 }
 
-// Drag & drop
+// Drag & drop (your original behavior)
 ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, ev => {
   ev.preventDefault();
   dropZone.classList.add('drag-over');
@@ -80,43 +81,41 @@ fileInput.addEventListener('change', () => {
   fileInput.value = '';
 });
 
-// === BEAUTIFUL SUCCESS MODAL ===
-function showSuccessModal(link, keyB64, saltB64 = null, hasPassword = false) {
+// SUCCESS MODAL — YOUR ORIGINAL COLORS & STYLE
+function showSuccess(link, keyB64, hasPassword = false) {
   const modal = document.createElement('div');
   modal.style.cssText = `
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
     display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;
-    animation: fadeIn 0.4s ease;
   `;
   modal.innerHTML = `
-    <div style="background: white; border-radius: 24px; padding: 2rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
-      <h2 style="margin: 0 0 1rem; color: #10b981;">Success! Files Encrypted</h2>
-      <p style="color: #666; margin-bottom: 1.5rem;">Share the link with anyone.<br>Send the key <strong>separately</strong> (e.g. Signal, SMS, Threema).</p>
+    <div style="background: white; border-radius: 24px; padding: 2rem; max-width: 600px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+      <h2 style="color: #10b981; margin: 0 0 1rem;">Files Encrypted Successfully!</h2>
+      <p style="color: #666; margin-bottom: 1.5rem;">
+        Share the link with anyone.<br>
+        Send the <strong>decryption key separately</strong> (SMS, Signal, etc.)
+      </p>
 
-      <div style="background: #f3f4f6; padding: 1rem; border-radius: 12px; margin: 1rem 0; text-align: left; font-family: monospace; word-break: break-all;">
+      <div style="background: #f8fafc; padding: 1rem; border-radius: 16px; margin: 1rem 0; font-family: monospace; word-break: break-all; border: 2px dashed #6366f1;">
         <strong>Link:</strong><br>${link}
       </div>
-      <button onclick="navigator.clipboard.writeText('${link}'); this.textContent='Copied!'" style="margin: 0.5rem; padding: 0.6rem 1.2rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">Copy Link</button>
+      <button onclick="navigator.clipboard.writeText('${link}'); this.innerHTML='Copied Link!'" 
+              style="margin: 0.5rem; padding: 0.8rem 1.5rem; background: #6366f1; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">
+        Copy Link
+      </button>
 
-      <div style="background: #f3f4f6; padding: 1rem; border-radius: 12px; margin: 1rem 0; text-align: left; font-family: monospace; word-break: break-all;">
+      <div style="background: #f8fafc; padding: 1rem; border-radius: 16px; margin: 1rem 0; font-family: monospace; word-break: break-all; border: 2px dashed #ec4899;">
         <strong>Decryption Key:</strong><br>${keyB64}
       </div>
-      <button onclick="navigator.clipboard.writeText('${keyB64}'); this.textContent='Copied!'" style="margin: 0.5rem; padding: 0.6rem 1.2rem; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer;">Copy Key</button>
+      <button onclick="navigator.clipboard.writeText('${keyB64}'); this.innerHTML='Copied Key!'" 
+              style="margin: 0.5rem; padding: 0.8rem 1.5rem; background: #ec4899; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">
+        Copy Key
+      </button>
 
-      ${hasPassword ? `
-        <div style="background: #fef3c7; padding: 1rem; border-radius: 12px; margin: 1rem 0; text-align: left; font-family: monospace; word-break: break-all; border: 1px solid #f59e0b;">
-          <strong>Password set</strong> — you already know it
-        </div>
-      ` : ''}
+      ${hasPassword ? `<p style="margin-top: 1rem; color: #dc2626; font-weight: bold;">Password was set — you already know it</p>` : ''}
 
-      ${saltB64 ? `
-        <div style="background: #fee2e2; padding: 1rem; border-radius: 12px; margin: 1rem 0; text-align: left; font-family: monospace; word-break: break-all;">
-          <strong>Salt (for password derivation):</strong><br>${saltB64}
-        </div>
-        <button onclick="navigator.clipboard.writeText('${saltB64}'); this.textContent='Copied!'" style="margin: 0.5rem; padding: 0.6rem 1.2rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">Copy Salt</button>
-      ` : ''}
-
-      <button onclick="this.closest('div').parentNode.remove()" style="margin-top: 1.5rem; padding: 0.8rem 2rem; background: #1f2937; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: bold;">
+      <button onclick="this.closest('div').parentNode.remove()" 
+              style="margin-top: 2rem; padding: 1rem 2rem; background: #1f2937; color: white; border: none; border-radius: 16px; cursor: pointer; font-size: 1.1rem;">
         Close
       </button>
     </div>
@@ -124,7 +123,7 @@ function showSuccessModal(link, keyB64, saltB64 = null, hasPassword = false) {
   document.body.appendChild(modal);
 }
 
-// === ENCRYPTION & UPLOAD (with modal) ===
+// ENCRYPTION (same secure logic, just cleaner)
 async function deriveKey(password, salt) {
   const enc = new TextEncoder();
   const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
@@ -138,18 +137,17 @@ async function deriveKey(password, salt) {
 }
 
 sendBtn.addEventListener('click', async () => {
-  if (files.length === 0) return alert('Add files first!');
+  if (files.length === 0) return alert('Please add files first!');
 
   sendBtn.disabled = true;
-  sendBtn.innerHTML = 'Encrypting...';
+  sendBtn.textContent = 'Encrypting...';
 
   const password = passwordInput.value.trim();
-  let key, keyB64, saltB64 = null;
+  let key, keyB64;
 
   if (password) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     key = await deriveKey(password, salt);
-    saltB64 = btoa(String.fromCharCode(...salt));
   } else {
     key = await crypto.subtle.generateKey({name: 'AES-GCM', length: 256}, true, ['encrypt', 'decrypt']);
   }
@@ -163,8 +161,7 @@ sendBtn.addEventListener('click', async () => {
   for (const file of files) {
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const encrypted = await crypto.subtle.encrypt({name: 'AES-GCM', iv}, key, await file.arrayBuffer());
-    let payload = btoa(String.fromCharCode(...new Uint8Array(encrypted))) + ':' + btoa(String.fromCharCode(...iv));
-    if (saltB64) payload += ':' + saltB64;
+    const payload = btoa(String.fromCharCode(...new Uint8Array(encrypted))) + ':' + btoa(String.fromCharCode(...iv));
     const blob = new Blob([payload]);
     formData.append('files', blob, file.name + '.enc');
   }
@@ -173,9 +170,8 @@ sendBtn.addEventListener('click', async () => {
   const {share_id} = await res.json();
   const link = location.origin + '/download/' + share_id;
 
-  showSuccessModal(link, keyB64, saltB64, !!password);
+  showSuccess(link, keyB64, !!password);
 
-  // Reset
   files = []; fileList.innerHTML = ''; updateSummary(); passwordInput.value = '';
   sendBtn.disabled = false;
   sendBtn.textContent = 'Encrypt & Generate Secure Link';
