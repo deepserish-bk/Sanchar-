@@ -14,6 +14,7 @@
     </h1>
     <p class="subtitle">Secure file sharing • Nepal → Italy</p>
 
+    <!-- DROP ZONE — ONLY FOR FILES -->
     <div id="drop-zone" class="drop-zone">
       <div class="upload-icon">Upload</div>
       <p class="drop-text" data-key="drop_here">Drop files here or click to upload</p>
@@ -21,18 +22,19 @@
 
       <div id="file-list" class="file-list"></div>
       <div id="summary" class="summary"></div>
+    </div>
 
-      <div class="controls">
-        <select id="expiry-select">
-          <option value="1h">1 hour</option>
-          <option value="24h" selected>24 hours</option>
-          <option value="7d">7 days</option>
-        </select>
+    <!-- CONTROLS OUTSIDE — NO MORE FILE PICKER ON CLICK -->
+    <div class="controls" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+      <select id="expiry-select">
+        <option value="1h">1 hour</option>
+        <option value="24h" selected>24 hours</option>
+        <option value="7d">7 days</option>
+      </select>
 
-        <input type="password" id="password-input" placeholder="Optional password (recommended)" />
+      <input type="password" id="password-input" placeholder="Optional password (recommended)" />
 
-        <button id="send-btn">Encrypt & Generate Secure Link</button>
-      </div>
+      <button id="send-btn">Encrypt & Generate Secure Link</button>
     </div>
 
     <footer>
