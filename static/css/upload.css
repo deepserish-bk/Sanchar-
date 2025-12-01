@@ -77,3 +77,40 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+#expiry-select, #password-input, #send-btn, #key-input, #decrypt-btn {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  width: 100%;
+  max-width: 400px;
+}
+
+#send-btn, #decrypt-btn {
+  background: #10b981;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#send-btn:disabled {
+  background: #6b7280;
+}
+
+footer {
+  margin-top: 4rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+}
+footer small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #999;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
