@@ -71,7 +71,7 @@ dropZone.addEventListener('drop', e => {
   updateSummary();
 });
 
-// SUCCESS MODAL — ONLY WHATSAPP (working perfectly)
+// SUCCESS MODAL — DAY 5 + DAY 6
 function showSuccess(link, keyB64) {
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;z-index:9999;';
@@ -89,15 +89,20 @@ function showSuccess(link, keyB64) {
       </div>
       <button onclick="navigator.clipboard.writeText('${keyB64}');this.innerHTML='Copied!'" style="margin:0.5rem;padding:0.8rem 1.5rem;background:#ec4899;color:white;border:none;border-radius:12px;cursor:pointer;font-weight:bold;">Copy Key</button>
 
-      <div style="margin:2rem 0;">
-        <button onclick="window.open('https://wa.me/?text=Sanchar%20Key%3A%20${encodeURIComponent(keyB64)}%0ALink%3A%20${encodeURIComponent(link)}')" 
-                style="background:#25d366;color:white;padding:1.2rem 2.5rem;border:none;border-radius:16px;cursor:pointer;font-weight:bold;font-size:1.2rem;">
-          Share on WhatsApp
-        </button>
-      </div>
+      <!-- DAY 5: Copy both together -->
+      <button onclick="navigator.clipboard.writeText('Sanchar Secure File\\nLink: ${link}\\nKey: ${keyB64}');this.innerHTML='Copied both!'" 
+              style="margin:1rem;padding:1rem 2rem;background:#f59e0b;color:white;border:none;border-radius:16px;cursor:pointer;font-weight:bold;font-size:1.1rem;">
+        Copy Link + Key together
+      </button>
+
+      <!-- DAY 6: One-click WhatsApp -->
+      <button onclick="window.open('https://wa.me/?text=' + encodeURIComponent('Sanchar Secure File%0ALink: ${link}%0AKey: ${keyB64}%0A%0AEnd-to-end encrypted from Nepal to Italy'))" 
+              style="margin:1rem;padding:1.2rem 3rem;background:#25d366;color:white;border:none;border-radius:16px;cursor:pointer;font-weight:bold;font-size:1.2rem;">
+        Send via WhatsApp
+      </button>
 
       <button onclick="this.closest('div').parentNode.remove()" 
-              style="margin-top:1rem;padding:1rem 2rem;background:#1e293b;color:white;border:none;border-radius:16px;cursor:pointer;font-size:1.1rem;font-weight:bold;">
+              style="margin-top:2rem;padding:1rem 2rem;background:#1e293b;color:white;border:none;border-radius:16px;cursor:pointer;font-size:1.1rem;font-weight:bold;">
         Close
       </button>
     </div>
@@ -105,7 +110,7 @@ function showSuccess(link, keyB64) {
   document.body.appendChild(modal);
 }
 
-// Your original working encryption (unchanged)
+// Your original encryption (unchanged)
 sendBtn.addEventListener('click', async () => {
   if (files.length === 0) return alert('Add files first!');
   sendBtn.disabled = true;
