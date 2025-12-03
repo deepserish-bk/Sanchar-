@@ -1,18 +1,47 @@
 
-# Sanchar
+Sanchar - Private File Sharing
 
-Simple, private, end-to-end encrypted file sharing — built for real people.
+A simple web app to share files securely. Files get encrypted in your browser before uploading. Only people with the secret key can decrypt them.
 
-## Why I built this
-I wanted to build a file sharing platform that adhered to the CIA triad of cybersecurity.  
-Most use Gmail or WeTransfer and accidentally break GDPR.  
-Sanchar fixes that — and works for anyone who needs to send sensitive files safely.
+What It Does
 
-## Features (being built live)
-- Drag & drop files
-- Military-grade encryption (age / X25519)
-- Links expire automatically
-- Password never travels with the link
-- English • Italiano • नेपाली
+Upload files → Encrypts them in your browser → Get a shareable link
+Share link + key → Friend opens link → Enters key → Downloads decrypted files
+Server never sees your actual files, only encrypted data
+How to Run It
 
-Built with love by Deepserish BK while applying to Italian master's programs 2026.
+Make sure you have Python installed
+Install the needed packages:
+bash
+pip install fastapi uvicorn
+Run the server:
+bash
+uvicorn main:app --reload
+Open browser: http://localhost:8000
+Features
+
+Drag & drop files to upload
+Choose how long links last (1 hour, 24 hours, 7 days)
+Optional password protection
+Copy links/keys easily
+Share via WhatsApp or email
+See download statistics
+Preview images/text before downloading
+Works on phone browsers too
+Tech Stuff
+
+Backend: FastAPI (Python)
+Frontend: Plain HTML/JavaScript
+Encryption: Browser's built-in Web Crypto API
+No databases: Files stored in memory (disappear when server restarts)
+Files in the Project
+
+main.py - The Python server code
+templates/ - HTML pages (upload & download)
+static/ - CSS and JavaScript files
+requirements.txt - List of Python packages needed
+Note
+
+This is meant for personal use/testing. Files don't get saved permanently - they disappear when you stop the server.
+
+Made with love from Nepal to Italy ❤️
