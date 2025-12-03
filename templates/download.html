@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Sanchar – Decrypt Files</title>
+  <!-- REMOVE QR Code Library -->
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -142,12 +143,119 @@
       border-radius: 8px;
       margin: 10px 0;
     }
+    
+    /* Download Stats */
+    #file-stats {
+      margin: 20px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      display: none;
+      animation: slideIn 0.5s ease;
+    }
+    
+    .stats-grid {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+    
+    .stat-item {
+      flex: 1;
+      padding: 0 10px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    /* Progress Bar */
+    #download-progress {
+      margin: 20px 0;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .progress-bar-bg {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* File Preview */
+    .file-preview {
+      margin-top: 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .preview-btn {
+      margin-left: 10px;
+      padding: 4px 12px;
+      font-size: 12px;
+      background: #e5e7eb;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .preview-btn:hover {
+      background: #d1d5db;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body data-share-id="{{ share_id }}" data-has-password="{{ 'true' if has_password else 'false' }}">
   <div class="container">
     <h1>Sanchar</h1>
     <p class="subtitle">Secure file sharing • Nepal → Italy</p>
+
+    <!-- Download Statistics -->
+    <div id="file-stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div id="download-count" class="stat-value">0</div>
+          <div class="stat-label">Downloads</div>
+        </div>
+        <div class="stat-item">
+          <div id="created-time" class="stat-value">Just now</div>
+          <div class="stat-label">Created</div>
+        </div>
+      </div>
+    </div>
 
     <div class="drop-zone">
       <div class="upload-icon">🔓</div>
@@ -167,6 +275,7 @@
 
       <button id="decrypt-btn">Decrypt & Download</button>
 
+      <!-- File List -->
       <div id="file-list" class="file-list"></div>
     </div>
 

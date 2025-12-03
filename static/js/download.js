@@ -24,6 +24,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // File type icon function
+    function getFileIcon(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const icons = {
+            'pdf': '📕',
+            'doc': '📄', 'docx': '📄',
+            'xls': '📊', 'xlsx': '📊',
+            'ppt': '📽️', 'pptx': '📽️',
+            'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'svg': '🖼️', 'webp': '🖼️',
+            'mp3': '🎵', 'wav': '🎵', 'ogg': '🎵',
+            'mp4': '🎬', 'avi': '🎬', 'mov': '🎬', 'mkv': '🎬',
+            'zip': '🗜️', 'rar': '🗜️', '7z': '🗜️', 'tar': '🗜️', 'gz': '🗜️',
+            'txt': '📝',
+            'html': '🌐', 'htm': '🌐',
+            'js': '📜',
+            'py': '🐍',
+            'java': '☕',
+            'cpp': '⚙️', 'c': '⚙️',
+            'exe': '⚙️',
+            'dmg': '💿'
+        };
+        return icons[ext] || '📁';
+    }
+    
     // Helper function to derive key from password
     async function deriveKeyFromPassword(password, salt) {
         const enc = new TextEncoder();
@@ -74,6 +98,113 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
     
+    // Show file statistics
+    function showFileStats(downloadCount, createdTime) {
+        const statsDiv = document.getElementById('file-stats');
+        const countSpan = document.getElementById('download-count');
+        const timeSpan = document.getElementById('created-time');
+        
+        if (statsDiv && countSpan && timeSpan) {
+            countSpan.textContent = downloadCount;
+            
+            // Format the time
+            const timeDiff = Date.now() - (createdTime * 1000);
+            const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) {
+                timeSpan.textContent = `${days} day${days !== 1 ? 's' : ''} ago`;
+            } else if (hours > 0) {
+                timeSpan.textContent = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            } else {
+                timeSpan.textContent = 'Just now';
+            }
+            
+            statsDiv.style.display = 'block';
+        }
+    }
+    
+    // Show download progress
+    function showDownloadProgress() {
+        const progressHTML = `
+            <div id="download-progress">
+                <div class="progress-header">
+                    <span id="dl-progress-text">Decrypting...</span>
+                    <span id="dl-progress-percent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="dl-progress-bar" class="progress-bar-fill"></div>
+                </div>
+            </div>
+        `;
+        fileList.innerHTML = progressHTML;
+    }
+    
+    function updateDownloadProgress(current, total, filename) {
+        const percent = Math.round((current / total) * 100);
+        const progressText = document.getElementById('dl-progress-text');
+        const progressPercent = document.getElementById('dl-progress-percent');
+        const progressBar = document.getElementById('dl-progress-bar');
+        
+        if (progressText && progressPercent && progressBar) {
+            progressText.textContent = `Decrypting: ${filename}`;
+            progressPercent.textContent = `${percent}%`;
+            progressBar.style.width = `${percent}%`;
+        }
+    }
+    
+    // File preview function
+    async function createFilePreview(filename, blob, url) {
+        const ext = filename.split('.').pop().toLowerCase();
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'file-preview';
+        previewDiv.style.cssText = 'margin-top: 10px; max-width: 300px; border-radius: 8px; overflow: hidden;';
+        
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+            // Image preview
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.cssText = 'max-width: 100%; max-height: 200px; display: block;';
+            img.onload = () => {
+                // Don't revoke URL here, keep it for download
+            };
+            previewDiv.appendChild(img);
+        } else if (['txt', 'json', 'js', 'py', 'html', 'css', 'md', 'xml', 'csv'].includes(ext)) {
+            // Text preview (first 1000 characters)
+            try {
+                const text = await blob.text();
+                const pre = document.createElement('pre');
+                pre.style.cssText = 'background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; max-height: 200px; overflow: auto; margin: 0; font-family: monospace; white-space: pre-wrap; word-wrap: break-word;';
+                pre.textContent = text.slice(0, 1000) + (text.length > 1000 ? '...' : '');
+                previewDiv.appendChild(pre);
+            } catch (error) {
+                console.error('Could not read file for preview:', error);
+            }
+        } else if (['pdf'].includes(ext)) {
+            // PDF preview (link)
+            const pdfPreview = document.createElement('div');
+            pdfPreview.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 5px; text-align: center;';
+            pdfPreview.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 10px;">📕</div>
+                <div style="font-size: 14px; color: #666;">PDF Document</div>
+                <div style="font-size: 12px; color: #999;">${formatBytes(blob.size)}</div>
+            `;
+            previewDiv.appendChild(pdfPreview);
+        } else if (['mp3', 'wav', 'ogg'].includes(ext)) {
+            // Audio preview
+            const audioPreview = document.createElement('div');
+            audioPreview.style.cssText = 'background: #f8f9fa; padding: 15px; border-radius: 5px; text-align: center;';
+            audioPreview.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 10px;">🎵</div>
+                <div style="font-size: 14px; color: #666;">Audio File</div>
+                <div style="font-size: 12px; color: #999;">${formatBytes(blob.size)}</div>
+            `;
+            previewDiv.appendChild(audioPreview);
+        }
+        
+        return previewDiv;
+    }
+    
     // Main decrypt function
     async function decryptFiles() {
         try {
@@ -95,7 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const originalBtnText = decryptBtn.textContent;
             decryptBtn.disabled = true;
             decryptBtn.textContent = 'Decrypting...';
-            fileList.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">Decrypting files...</div>';
+            
+            // Show download progress
+            showDownloadProgress();
             
             console.log("Fetching data from server for share:", shareId);
             
@@ -113,13 +246,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('No files found in this share');
             }
             
+            // Show file statistics
+            showFileStats(result.download_count || 0, result.created_at || Date.now()/1000);
+            
             let decryptionKey;
             
             if (hasPassword) {
                 // For password-protected files, derive key from password
                 // Get salt from the first file's payload
                 const firstPayloadBase64 = result.data[0];
-                const firstPayload = atob(firstPayloadBase64); // Decode base64
+                const firstPayload = atob(firstPayloadBase64);
                 const parts = firstPayload.split(':');
                 
                 if (parts.length < 3) {
@@ -135,16 +271,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 decryptionKey = await importRawKey(keyB64);
             }
             
-            // Clear file list
+            // Clear file list and remove progress bar
             fileList.innerHTML = '';
             let successCount = 0;
             
             // Decrypt each file
             for (let i = 0; i < result.data.length; i++) {
                 try {
+                    // Update progress
+                    updateDownloadProgress(i + 1, result.data.length, result.filenames[i] || `file-${i + 1}`);
+                    
                     // Data from server is base64 encoded
                     const payloadBase64 = result.data[i];
-                    const payload = atob(payloadBase64); // Decode base64 to get string
+                    const payload = atob(payloadBase64);
                     const parts = payload.split(':');
                     
                     if (parts.length < 2) {
@@ -177,14 +316,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     const fileItem = document.createElement('div');
                     fileItem.className = 'file-item';
                     fileItem.innerHTML = `
-                        <span class="file-icon">📥</span>
+                        <span class="file-icon">${getFileIcon(filename)}</span>
                         <div class="file-info">
                             <div class="file-name">
                                 <a href="${url}" download="${filename}">${filename}</a>
+                                <button class="preview-btn">Preview</button>
                             </div>
                             <div class="file-size">${formatBytes(decryptedData.byteLength)}</div>
                         </div>
                     `;
+                    
+                    // Add preview functionality
+                    const previewBtn = fileItem.querySelector('.preview-btn');
+                    previewBtn.addEventListener('click', async () => {
+                        const existingPreview = fileItem.querySelector('.file-preview');
+                        if (existingPreview) {
+                            existingPreview.remove();
+                            previewBtn.textContent = 'Preview';
+                        } else {
+                            previewBtn.textContent = 'Hide Preview';
+                            const preview = await createFilePreview(filename, blob, url);
+                            fileItem.appendChild(preview);
+                        }
+                    });
                     
                     fileList.appendChild(fileItem);
                     successCount++;
