@@ -3,155 +3,67 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Sanchar – Decrypt Files</title>
-  <!-- REMOVE QR Code Library -->
   <style>
+    /* Base - white background */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: white;  /* WHITE */
+      color: #111;        /* BLACK */
       min-height: 100vh;
-      margin: 0;
-      padding: 20px;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
     
+    /* Main container */
     .container {
       background: white;
-      border-radius: 20px;
-      padding: 40px;
+      border-radius: 12px;
+      padding: 30px;
       max-width: 700px;
       width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;  /* LIGHT GRAY */
       text-align: center;
     }
     
-    h1 {
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .logo {
       font-size: 3.5rem;
-      background: linear-gradient(135deg, #ff8a00, #e52e71);
+      font-weight: 800;
+      /* Only color on page */
+      background: linear-gradient(135deg, #E53E3E 0%, #38A169 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 0.5rem;
     }
     
-    .subtitle {
-      color: #666;
-      margin-bottom: 30px;
+    .tagline {
+      color: #666;  /* GRAY */
       font-size: 1.1rem;
+      margin-bottom: 30px;
     }
     
-    .drop-zone {
-      border: 3px dashed #ccc;
-      border-radius: 16px;
-      padding: 40px;
-      margin: 20px 0;
-      transition: all 0.3s;
-    }
-    
-    .upload-icon {
-      font-size: 4rem;
-      margin-bottom: 20px;
-    }
-    
-    input {
-      padding: 15px;
-      border: 2px solid #ddd;
-      border-radius: 12px;
-      font-size: 16px;
-      width: 100%;
-      max-width: 500px;
-      margin: 10px 0;
-      font-family: monospace;
-    }
-    
-    button {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      border: none;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: transform 0.2s;
-    }
-    
-    button:hover {
-      transform: translateY(-2px);
-    }
-    
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .file-list {
-      margin-top: 30px;
-      text-align: left;
-    }
-    
-    .file-item {
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-      border-left: 4px solid #667eea;
-    }
-    
-    .file-icon {
-      font-size: 24px;
-      margin-right: 15px;
-    }
-    
-    .file-info {
-      flex-grow: 1;
-    }
-    
-    .file-name {
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    
-    .file-size {
-      color: #666;
-      font-size: 14px;
-    }
-    
-    footer {
-      margin-top: 40px;
-      color: #666;
-      font-size: 14px;
-    }
-    
-    a {
-      color: #667eea;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    a:hover {
-      text-decoration: underline;
-    }
-    
-    .error {
-      color: #dc2626;
-      background: #fee2e2;
-      padding: 10px;
-      border-radius: 8px;
-      margin: 10px 0;
-    }
-    
-    /* Download Stats */
+    /* Download stats */
     #file-stats {
       margin: 20px 0;
       padding: 15px;
-      background: #f8f9fa;
-      border-radius: 10px;
+      background: #fafafa;  /* VERY LIGHT GRAY */
+      border-radius: 8px;
       display: none;
-      animation: slideIn 0.5s ease;
+      border: 1px solid #eee;
     }
     
     .stats-grid {
@@ -168,16 +80,143 @@
     .stat-value {
       font-size: 24px;
       font-weight: bold;
-      color: #667eea;
+      color: #111;  /* BLACK */
     }
     
     .stat-label {
       font-size: 12px;
-      color: #666;
+      color: #777;  /* GRAY */
       margin-top: 5px;
     }
     
-    /* Progress Bar */
+    /* Main content area */
+    .content-area {
+      border: 2px dashed #bbb;  /* GRAY DASHED */
+      border-radius: 12px;
+      padding: 30px;
+      margin: 20px 0;
+      background: #fafafa;  /* VERY LIGHT GRAY */
+    }
+    
+    .decrypt-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #888;  /* GRAY */
+    }
+    
+    /* Instructions */
+    #instructions {
+      color: #555;  /* DARK GRAY */
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+    }
+    
+    /* Input fields */
+    input {
+      padding: 15px;
+      border: 1px solid #ccc;  /* LIGHT GRAY */
+      border-radius: 8px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 500px;
+      margin: 10px 0;
+      font-family: monospace;
+      background: white;
+      color: #111;  /* BLACK */
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #888;  /* MEDIUM GRAY */
+    }
+    
+    input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Main button - black */
+    #decrypt-btn {
+      background: black;  /* BLACK */
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: opacity 0.2s;
+    }
+    
+    #decrypt-btn:hover {
+      opacity: 0.9;
+    }
+    
+    #decrypt-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* File list */
+    .file-list {
+      margin-top: 30px;
+      text-align: left;
+    }
+    
+    .file-item {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      border-left: 3px solid #333;  /* BLACK ACCENT */
+      border: 1px solid #eee;
+    }
+    
+    .file-icon {
+      font-size: 24px;
+      margin-right: 15px;
+      color: #777;  /* GRAY */
+    }
+    
+    .file-info {
+      flex-grow: 1;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      color: #222;  /* DARK GRAY */
+      margin-bottom: 5px;
+    }
+    
+    .file-name a {
+      color: #111;  /* BLACK */
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .file-name a:hover {
+      text-decoration: underline;
+    }
+    
+    .file-size {
+      color: #777;  /* GRAY */
+      font-size: 14px;
+    }
+    
+    /* Error messages */
+    .error {
+      color: #b91c1c;  /* RED (only for errors) */
+      background: #fee2e2;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border: 1px solid #fecaca;
+    }
+    
+    /* Progress bar */
     #download-progress {
       margin: 20px 0;
     }
@@ -186,64 +225,63 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: 5px;
+      color: #555;  /* DARK GRAY */
     }
     
     .progress-bar-bg {
-      height: 10px;
-      background: #e5e7eb;
-      border-radius: 5px;
+      height: 8px;
+      background: #eee;  /* LIGHT GRAY */
+      border-radius: 4px;
       overflow: hidden;
     }
     
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: black;  /* BLACK */
       width: 0%;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.3s;
     }
     
-    /* File Preview */
+    /* File preview */
     .file-preview {
       margin-top: 10px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #ddd;  /* LIGHT GRAY */
       border-radius: 8px;
       overflow: hidden;
-      animation: fadeIn 0.3s ease;
     }
     
     .preview-btn {
       margin-left: 10px;
       padding: 4px 12px;
       font-size: 12px;
-      background: #e5e7eb;
+      background: #eee;  /* LIGHT GRAY */
+      color: #444;       /* DARK GRAY */
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      transition: background 0.2s;
     }
     
     .preview-btn:hover {
-      background: #d1d5db;
+      background: #ddd;  /* SLIGHTLY DARKER GRAY */
     }
     
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      color: #777;  /* GRAY */
+      font-size: 14px;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body data-share-id="{{ share_id }}" data-has-password="{{ 'true' if has_password else 'false' }}">
   <div class="container">
-    <h1>Sanchar</h1>
-    <p class="subtitle">Secure file sharing • Nepal → Italy</p>
+    <div class="header">
+      <h1 class="logo">Sanchar</h1>
+      <p class="tagline">Secure file sharing • 🇳🇵 → 🇮🇹</p>
+    </div>
 
-    <!-- Download Statistics -->
+    <!-- Download stats -->
     <div id="file-stats">
       <div class="stats-grid">
         <div class="stat-item">
@@ -257,8 +295,10 @@
       </div>
     </div>
 
-    <div class="drop-zone">
-      <div class="upload-icon">🔓</div>
+    <!-- Main content -->
+    <div class="content-area">
+      <div class="decrypt-icon">🔓</div>
+      
       <p id="instructions">
         {% if has_password %}
           Enter the password to decrypt your files
@@ -275,7 +315,6 @@
 
       <button id="decrypt-btn">Decrypt & Download</button>
 
-      <!-- File List -->
       <div id="file-list" class="file-list"></div>
     </div>
 

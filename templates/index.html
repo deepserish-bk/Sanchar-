@@ -6,193 +6,261 @@
   <title>Sanchar – Secure File Sharing</title>
   <link rel="stylesheet" href="/static/css/style.css"/>
   <link rel="stylesheet" href="/static/css/upload.css"/>
-  <!-- REMOVE QR Code Library -->
   <style>
-    .file-item {
-      position: relative;
-      padding-right: 40px;
+    /* Base - white background, black text */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    /* Add to existing email modal styles */
-textarea.email-input {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
-  line-height: 1.5;
-}
-
-.email-modal-content {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-#generated-email {
-  transition: all 0.3s ease;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  color: #666;
-  font-weight: 500;
-}
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: white;  /* WHITE */
+      color: #111;        /* NEAR BLACK */
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    /* Header - only color is logo gradient */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .logo {
+      font-size: 3.5rem;
+      font-weight: 800;
+      /* Only color: Nepal→Italy gradient */
+      background: linear-gradient(135deg, #E53E3E 0%, #38A169 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    
+    .tagline {
+      color: #666;  /* GRAY */
+      font-size: 1.1rem;
+    }
+    
+    /* Upload area - white card with gray border */
+    .upload-container {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;  /* LIGHT GRAY */
+    }
+    
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed #bbb;  /* GRAY DASHED */
+      border-radius: 10px;
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: all 0.3s;
+      background: #fafafa;  /* VERY LIGHT GRAY */
+      margin-bottom: 2rem;
+      cursor: pointer;
+    }
+    
+    .drop-zone:hover {
+      border-color: #888;
+      background: #f5f5f5;
+    }
+    
+    .drop-zone.drag-over {
+      border-color: #333;  /* DARK GRAY */
+      background: #f0f0f0;
+    }
+    
+    .upload-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: #888;  /* MEDIUM GRAY */
+    }
+    
+    .drop-text {
+      color: #555;  /* DARK GRAY */
+      font-size: 1.1rem;
+    }
+    
+    /* File list */
+    .file-list {
+      margin-top: 1.5rem;
+    }
+    
+    .file-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      border-left: 3px solid #333;  /* BLACK ACCENT */
+      border: 1px solid #eee;
+    }
+    
+    .file-icon {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      color: #777;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      color: #222;
+    }
+    
+    .file-size {
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
+    /* Remove button - black */
     .remove-file {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ef4444;
+      background: black;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       cursor: pointer;
       font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
     }
     
-    .file-item:hover .remove-file {
-      opacity: 1;
-    }
-    
-    .remove-file:hover {
-      background: #dc2626;
-    }
-    
-    /* Progress Bar Styles */
+    /* Progress bar - black */
     #progress-container {
       display: none;
-      margin-top: 1rem;
-      width: 100%;
-      max-width: 500px;
+      margin-top: 2rem;
     }
     
     .progress-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 5px;
+      margin-bottom: 0.5rem;
+      color: #555;
     }
     
     .progress-bar-bg {
-      height: 10px;
-      background: #e5e7eb;
-      border-radius: 5px;
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
       overflow: hidden;
     }
     
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: black;  /* BLACK */
       width: 0%;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.3s;
     }
     
-    #file-progress {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #666;
+    /* Controls */
+    .controls {
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
     }
     
-    /* Email Modal Styles */
-    .email-modal-content {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-    }
-    
-    .email-input {
-      width: 100%;
-      padding: 12px 15px;
-      margin: 15px 0;
-      border: 2px solid #ddd;
-      border-radius: 10px;
+    select, input[type="password"] {
+      padding: 12px 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 16px;
-      box-sizing: border-box;
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      color: #111;
     }
     
-    .email-input:focus {
+    select:focus, input[type="password"]:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #888;
     }
     
-    .email-btn {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+    /* Main button - black */
+    #send-btn {
+      background: black;  /* BLACK */
       color: white;
       border: none;
-      padding: 12px 25px;
+      padding: 16px 40px;
       border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
+      font-size: 18px;
+      font-weight: 600;
       cursor: pointer;
-      margin: 10px 5px;
-      transition: transform 0.2s;
+      transition: opacity 0.2s;
     }
     
-    .email-btn:hover {
-      transform: translateY(-2px);
+    #send-btn:hover {
+      opacity: 0.9;
     }
     
-    .email-btn.secondary {
-      background: #6b7280;
+    #send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
     
-    /* Animation */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Footer */
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      color: #777;
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 style="font-size: 4.5rem; background: linear-gradient(135deg, #ff8a00, #e52e71); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
-      Sanchar
-    </h1>
-    <p class="subtitle">Secure file sharing • Nepal → Italy</p>
-
-    <div id="drop-zone" class="drop-zone">
-      <div class="upload-icon">📤</div>
-      <p class="drop-text" data-key="drop_here">Drop files here or click to upload</p>
-      <input type="file" id="file-input" multiple style="display: none;"/>
-
-      <div id="file-list" class="file-list"></div>
-      <div id="summary" class="summary"></div>
+    <div class="header">
+      <h1 class="logo">Sanchar</h1>
+      <p class="tagline">Secure file sharing • 🇳🇵 → 🇮🇹</p>
     </div>
 
-    <!-- Progress Bar Container -->
-    <div id="progress-container" class="progress-container">
-      <div class="progress-header">
-        <span id="progress-text">Preparing...</span>
-        <span id="progress-percent">0%</span>
+    <div class="upload-container">
+      <div id="drop-zone" class="drop-zone">
+        <div class="upload-icon">📤</div>
+        <p class="drop-text">Drop files here or click to upload</p>
+        <input type="file" id="file-input" multiple style="display: none;"/>
+
+        <div id="file-list" class="file-list"></div>
+        <div id="summary" class="summary"></div>
       </div>
-      <div class="progress-bar-bg">
-        <div id="progress-bar" class="progress-bar-fill"></div>
+
+      <div id="progress-container" class="progress-container">
+        <div class="progress-header">
+          <span id="progress-text">Preparing...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="progress-bar" class="progress-bar-fill"></div>
+        </div>
+        <div id="file-progress"></div>
       </div>
-      <div id="file-progress"></div>
-    </div>
 
-    <div class="controls" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-      <select id="expiry-select">
-        <option value="1h">1 hour</option>
-        <option value="24h" selected>24 hours</option>
-        <option value="7d">7 days</option>
-      </select>
+      <div class="controls">
+        <select id="expiry-select">
+          <option value="1h">1 hour</option>
+          <option value="24h" selected>24 hours</option>
+          <option value="7d">7 days</option>
+        </select>
 
-      <input type="password" id="password-input" placeholder="Optional password (recommended)" />
+        <input type="password" id="password-input" placeholder="Optional password (recommended)" />
 
-      <button id="send-btn">Encrypt & Generate Secure Link</button>
+        <button id="send-btn">Encrypt & Generate Secure Link</button>
+      </div>
     </div>
 
     <footer>
