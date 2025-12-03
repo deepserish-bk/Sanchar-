@@ -3,34 +3,179 @@
 <head>
   <meta charset="UTF-8"/>
   <title>Sanchar – Decrypt Files</title>
-  <link rel="stylesheet" href="/static/css/style.css"/>
-  <link rel="stylesheet" href="/static/css/upload.css"/>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      background: linear-gradient(135deg, #ff8a00, #e52e71);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+    
+    .drop-zone {
+      border: 3px dashed #ccc;
+      border-radius: 16px;
+      padding: 40px;
+      margin: 20px 0;
+      transition: all 0.3s;
+    }
+    
+    .upload-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+    }
+    
+    input {
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 500px;
+      margin: 10px 0;
+      font-family: monospace;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .file-list {
+      margin-top: 30px;
+      text-align: left;
+    }
+    
+    .file-item {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      border-left: 4px solid #667eea;
+    }
+    
+    .file-icon {
+      font-size: 24px;
+      margin-right: 15px;
+    }
+    
+    .file-info {
+      flex-grow: 1;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    
+    .file-size {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    footer {
+      margin-top: 40px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    .error {
+      color: #dc2626;
+      background: #fee2e2;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
 </head>
-<body>
+<body data-share-id="{{ share_id }}" data-has-password="{{ 'true' if has_password else 'false' }}">
   <div class="container">
     <h1>Sanchar</h1>
     <p class="subtitle">Secure file sharing • Nepal → Italy</p>
 
-    <div class="drop-zone" style="padding: 40px; max-width: 600px;">
-      <div class="upload-icon">Lock</div>
-      <p>Enter the decryption key to download your files</p>
+    <div class="drop-zone">
+      <div class="upload-icon">🔓</div>
+      <p id="instructions">
+        {% if has_password %}
+          Enter the password to decrypt your files
+        {% else %}
+          Enter the decryption key to download your files
+        {% endif %}
+      </p>
 
-      <input type="text" id="key-input" placeholder="Paste decryption key here" style="margin: 1rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
-      <input type="password" id="password-input" placeholder="Password (if you set one)" style="margin: 0.5rem 0; padding: 1rem; width: 100%; max-width: 500px; border-radius: 12px; border: 2px solid #ddd;" />
+      <input type="text" id="key-input" 
+             placeholder="{% if has_password %}Key not needed (using password){% else %}Paste decryption key here{% endif %}" 
+             {% if has_password %}disabled style="opacity:0.5"{% endif %} />
+      
+      <input type="password" id="password-input" placeholder="Password (if you set one)" />
 
       <button id="decrypt-btn">Decrypt & Download</button>
 
-      <div id="file-list" class="file-list" style="margin-top: 2rem;"></div>
+      <div id="file-list" class="file-list"></div>
     </div>
 
     <footer>
-      Made with love from Nepal to Italy
+      Made with love from Nepal to Italy<br>
+      <small>End-to-end encrypted • Your files are decrypted in your browser</small>
     </footer>
   </div>
 
-  <script>
-    const shareId = "{{ share_id }}";
-  </script>
   <script src="/static/js/download.js"></script>
 </body>
 </html>

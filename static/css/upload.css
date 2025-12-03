@@ -193,3 +193,34 @@ footer {
   margin-top: 4rem;
   color: #94a3b8;
 }
+.file-item {
+  position: relative;
+}
+
+.remove-file {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.file-item:hover .remove-file {
+  opacity: 1;
+}
+
+.remove-file:hover {
+  background: #dc2626;
+}

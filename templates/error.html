@@ -1,15 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sanchar – Error</title>
-  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .error-container {
+      text-align: center;
+      padding: 3rem;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .error-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      border: 1px solid #fca5a5;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 1.5rem;
+      background: #3b82f6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    
+    .back-link:hover {
+      background: #2563eb;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Error</h1>
-    <p>{{ message }}</p>
-    <a href="/">Go Home</a>
+    <h1>Sanchar</h1>
+    <p class="subtitle">Secure file sharing • Nepal → Italy</p>
+    
+    <div class="error-container">
+      <div class="error-icon">❌</div>
+      <h2>Error</h2>
+      
+      <div class="error-message">
+        {{ message }}
+      </div>
+      
+      <p>This could be because:</p>
+      <ul style="text-align: left; display: inline-block; margin: 1rem 0;">
+        <li>The link has expired</li>
+        <li>The files have been deleted</li>
+        <li>The link is incorrect</li>
+      </ul>
+      
+      <a href="/" class="back-link">← Back to Sanchar</a>
+    </div>
+    
+    <footer>
+      Made with love from Nepal to Italy<br>
+      <small>End-to-end encrypted • Your privacy matters</small>
+    </footer>
   </div>
 </body>
 </html>

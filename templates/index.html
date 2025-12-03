@@ -6,6 +6,40 @@
   <title>Sanchar – Secure File Sharing</title>
   <link rel="stylesheet" href="/static/css/style.css"/>
   <link rel="stylesheet" href="/static/css/upload.css"/>
+  <style>
+    .file-item {
+      position: relative;
+      padding-right: 40px;
+    }
+    
+    .remove-file {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    
+    .file-item:hover .remove-file {
+      opacity: 1;
+    }
+    
+    .remove-file:hover {
+      background: #dc2626;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -14,9 +48,8 @@
     </h1>
     <p class="subtitle">Secure file sharing • Nepal → Italy</p>
 
-    <!-- DROP ZONE — ONLY FOR FILES -->
     <div id="drop-zone" class="drop-zone">
-      <div class="upload-icon">Upload</div>
+      <div class="upload-icon">📤</div>
       <p class="drop-text" data-key="drop_here">Drop files here or click to upload</p>
       <input type="file" id="file-input" multiple style="display: none;"/>
 
@@ -24,7 +57,6 @@
       <div id="summary" class="summary"></div>
     </div>
 
-    <!-- CONTROLS OUTSIDE — NO MORE FILE PICKER ON CLICK -->
     <div class="controls" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
       <select id="expiry-select">
         <option value="1h">1 hour</option>
