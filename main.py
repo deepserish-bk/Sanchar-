@@ -42,7 +42,9 @@ async def upload(files: list[UploadFile] = File(...), expiry: str = Form("24h"),
         "data": data,
         "names": names,
         "expiry": time.time() + expiry_sec,
-        "has_password": has_password == "true"
+        "has_password": has_password == "true",
+        "download_count": 0,  # New: Track downloads
+        "created_at": time.time()  # New: Creation timestamp
     }
     
     print(f"Uploaded: {share_id}, files: {len(data)}, has_password: {has_password == 'true'}")
@@ -70,11 +72,16 @@ async def get_data(share_id: str):
     if time.time() > storage[share_id]["expiry"]:
         return JSONResponse({"error": "expired"}, status_code=410)
     
+    # Increment download count
+    storage[share_id]["download_count"] += 1
+    
     d = storage[share_id]
     return {
         "data": d["data"], 
         "filenames": d["names"], 
-        "has_password": d["has_password"]
+        "has_password": d["has_password"],
+        "download_count": d["download_count"],  # New: Return download count
+        "created_at": d["created_at"]  # New: Return creation time
     }
 
 @app.post("/send-key-email")
@@ -103,6 +110,7 @@ async def debug(share_id: str):
             "filenames": d["names"],
             "sample_data": sample,
             "has_password": d["has_password"],
+            "download_count": d.get("download_count", 0),
             "expired": time.time() > d["expiry"],
             "expiry_time": d["expiry"],
             "current_time": time.time()
