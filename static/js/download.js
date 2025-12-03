@@ -8,6 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const decryptBtn = document.getElementById('decrypt-btn');
     const fileList = document.getElementById('file-list');
     
+    // Quick Look state
+    let quickLookModal = null;
+    let currentFileIndex = 0;
+    let currentFiles = [];
+    
     // File type icon - returns emoji based on extension
     function getFileIcon(filename) {
         const ext = filename.split('.').pop().toLowerCase();
@@ -16,9 +21,9 @@ document.addEventListener('DOMContentLoaded', function() {
             'doc': '📄', 'docx': '📄',
             'xls': '📊', 'xlsx': '📊',
             'ppt': '📽️', 'pptx': '📽️',
-            'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️',
-            'mp3': '🎵', 'wav': '🎵', 'ogg': '🎵',
-            'mp4': '🎬', 'avi': '🎬', 'mov': '🎬', 'mkv': '🎬',
+            'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️', 'svg': '🖼️',
+            'mp3': '🎵', 'wav': '🎵', 'ogg': '🎵', 'flac': '🎵',
+            'mp4': '🎬', 'avi': '🎬', 'mov': '🎬', 'mkv': '🎬', 'webm': '🎬',
             'zip': '🗜️', 'rar': '🗜️', '7z': '🗜️', 'tar': '🗜️', 'gz': '🗜️',
             'txt': '📝',
             'html': '🌐', 'htm': '🌐',
@@ -107,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Show progress bar - black and white
+    // Show progress bar
     function showDownloadProgress() {
         const progressHTML = `
             <div id="download-progress">
@@ -136,157 +141,388 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-   // Updated createFilePreview function
-async function createFilePreview(filename, blob, url) {
-    const ext = filename.split('.').pop().toLowerCase();
-    const previewDiv = document.createElement('div');
-    previewDiv.className = 'file-preview';
-    
-    // Add some styling
-    previewDiv.style.cssText = 'margin-top: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;';
-    
-    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
-        // Image preview - use the object URL
-        const img = document.createElement('img');
-        img.src = url;
-        img.style.cssText = 'max-width: 100%; max-height: 200px; display: block; margin: 0 auto;';
-        img.alt = filename;
+    // Create Quick Look modal
+    function createQuickLookModal() {
+        if (quickLookModal) return;
         
-        // Add loading indicator
-        img.onload = () => {
-            previewDiv.querySelector('.loading')?.remove();
-        };
+        quickLookModal = document.createElement('div');
+        quickLookModal.id = 'quicklook-modal';
+        quickLookModal.style.cssText = `
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        `;
         
-        // Show loading text
-        const loadingText = document.createElement('div');
-        loadingText.className = 'loading';
-        loadingText.textContent = 'Loading image...';
-        loadingText.style.cssText = 'text-align: center; color: #666; margin-bottom: 10px;';
-        previewDiv.appendChild(loadingText);
-        
-        previewDiv.appendChild(img);
-        
-    } else if (['txt', 'json', 'js', 'py', 'html', 'css', 'md', 'xml', 'csv', 'log', 'yaml', 'yml'].includes(ext)) {
-        // Text preview
-        try {
-            const text = await blob.text();
-            const pre = document.createElement('pre');
-            pre.style.cssText = 'background: #fff; padding: 10px; border-radius: 5px; font-size: 12px; max-height: 200px; overflow: auto; margin: 0; font-family: "Monaco", "Courier New", monospace; white-space: pre-wrap; word-wrap: break-word; color: #333; line-height: 1.4;';
+        quickLookModal.innerHTML = `
+            <div style="position: absolute; top: 20px; right: 20px;">
+                <button id="ql-close" style="
+                    background: rgba(255,255,255,0.1);
+                    border: 1px solid rgba(255,255,255,0.3);
+                    color: white;
+                    font-size: 18px;
+                    cursor: pointer;
+                    padding: 10px 15px;
+                    border-radius: 50%;
+                    width: 45px;
+                    height: 45px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                ">✕</button>
+            </div>
             
-            // Add line numbers for code files
-            if (['js', 'py', 'html', 'css', 'java', 'cpp', 'c', 'php', 'rb'].includes(ext)) {
-                const lines = text.split('\n');
-                const numberedText = lines.map((line, i) => 
-                    `<span style="color: #999; margin-right: 10px; user-select: none;">${i + 1}</span>${line.replace(/</g, '&lt;').replace(/>/g, '&gt;')}`
-                ).join('\n');
-                pre.innerHTML = numberedText;
-            } else {
-                pre.textContent = text.slice(0, 5000) + (text.length > 5000 ? '\n\n... (truncated)' : '');
+            <div id="ql-content" style="
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 40px;
+                box-sizing: border-box;
+            ">
+                <div style="
+                    max-width: 100%;
+                    max-height: 100%;
+                    text-align: center;
+                    position: relative;
+                ">
+                    <!-- Content will be inserted here -->
+                </div>
+            </div>
+            
+            <div id="ql-file-info" style="
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                padding: 20px;
+                background: linear-gradient(transparent, rgba(0,0,0,0.8));
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                color: white;
+            ">
+                <div id="ql-filename" style="
+                    font-weight: 500;
+                    font-size: 16px;
+                    margin-bottom: 5px;
+                "></div>
+                <div id="ql-filesize" style="
+                    font-size: 14px;
+                    opacity: 0.8;
+                    margin-bottom: 15px;
+                "></div>
+                <div id="ql-nav" style="
+                    display: flex;
+                    justify-content: center;
+                    gap: 15px;
+                    align-items: center;
+                ">
+                    <button id="ql-prev" style="
+                        background: rgba(255,255,255,0.1);
+                        border: 1px solid rgba(255,255,255,0.3);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: background 0.2s;
+                    ">← Previous</button>
+                    <span id="ql-counter" style="
+                        font-size: 14px;
+                        opacity: 0.8;
+                        min-width: 60px;
+                    "></span>
+                    <button id="ql-next" style="
+                        background: rgba(255,255,255,0.1);
+                        border: 1px solid rgba(255,255,255,0.3);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: background 0.2s;
+                    ">Next →</button>
+                </div>
+            </div>
+            
+            <div id="ql-error" style="
+                color: white;
+                text-align: center;
+                padding: 40px;
+                display: none;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            ">
+                <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                <div style="font-size: 18px; margin-bottom: 10px;">Preview not available</div>
+                <div style="opacity: 0.8; font-size: 14px;">This file type cannot be previewed</div>
+            </div>
+        `;
+        
+        document.body.appendChild(quickLookModal);
+        
+        // Event listeners for modal
+        document.getElementById('ql-close').addEventListener('click', closeQuickLook);
+        document.getElementById('ql-prev').addEventListener('click', showPrevFile);
+        document.getElementById('ql-next').addEventListener('click', showNextFile);
+        
+        // Close on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && quickLookModal.style.display === 'flex') {
+                closeQuickLook();
+            } else if (e.key === 'ArrowLeft' && quickLookModal.style.display === 'flex') {
+                showPrevFile();
+            } else if (e.key === 'ArrowRight' && quickLookModal.style.display === 'flex') {
+                showNextFile();
+            } else if (e.key === ' ' && quickLookModal.style.display === 'flex') {
+                e.preventDefault(); // Prevent space from scrolling
             }
-            
-            previewDiv.appendChild(pre);
-        } catch (error) {
-            const errorMsg = document.createElement('div');
-            errorMsg.textContent = 'Could not preview file: ' + error.message;
-            errorMsg.style.cssText = 'color: #666; text-align: center; padding: 20px;';
-            previewDiv.appendChild(errorMsg);
-        }
+        });
         
-    } else if (['pdf'].includes(ext)) {
-        // PDF preview with PDF.js option
-        const pdfPreview = document.createElement('div');
-        pdfPreview.style.cssText = 'text-align: center;';
-        pdfPreview.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 10px; color: #777;">📕</div>
-            <div style="font-size: 14px; color: #555; margin-bottom: 5px;">PDF Document</div>
-            <div style="font-size: 12px; color: #888; margin-bottom: 15px;">${formatBytes(blob.size)}</div>
-            <a href="${url}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #333; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Open in New Tab</a>
-        `;
-        previewDiv.appendChild(pdfPreview);
-        
-    } else if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(ext)) {
-        // Audio preview
-        const audioPreview = document.createElement('div');
-        audioPreview.style.cssText = 'text-align: center;';
-        const audio = document.createElement('audio');
-        audio.controls = true;
-        audio.src = url;
-        audio.style.cssText = 'width: 100%; margin: 10px 0;';
-        
-        audioPreview.appendChild(audio);
-        previewDiv.appendChild(audioPreview);
-        
-    } else if (['mp4', 'avi', 'mov', 'mkv', 'webm', 'ogg', 'wmv'].includes(ext)) {
-        // Video preview
-        const videoPreview = document.createElement('div');
-        videoPreview.style.cssText = 'text-align: center;';
-        const video = document.createElement('video');
-        video.controls = true;
-        video.src = url;
-        video.style.cssText = 'max-width: 100%; max-height: 200px; display: block; margin: 0 auto;';
-        
-        videoPreview.appendChild(video);
-        previewDiv.appendChild(videoPreview);
-        
-    } else if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
-        // Archive preview
-        const archivePreview = document.createElement('div');
-        archivePreview.style.cssText = 'text-align: center;';
-        archivePreview.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 10px; color: #777;">🗜️</div>
-            <div style="font-size: 14px; color: #555; margin-bottom: 5px;">Compressed Archive</div>
-            <div style="font-size: 12px; color: #888; margin-bottom: 15px;">${formatBytes(blob.size)}</div>
-            <div style="font-size: 12px; color: #999;">Contains one or more files</div>
-        `;
-        previewDiv.appendChild(archivePreview);
-        
-    } else {
-        // Generic file preview
-        const genericPreview = document.createElement('div');
-        genericPreview.style.cssText = 'text-align: center;';
-        genericPreview.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 10px; color: #777;">${getFileIcon(filename)}</div>
-            <div style="font-size: 14px; color: #555; margin-bottom: 5px;">${ext.toUpperCase()} File</div>
-            <div style="font-size: 12px; color: #888; margin-bottom: 15px;">${formatBytes(blob.size)}</div>
-            <div style="font-size: 12px; color: #999;">Preview not available for this file type</div>
-        `;
-        previewDiv.appendChild(genericPreview);
+        // Close on background click
+        quickLookModal.addEventListener('click', (e) => {
+            if (e.target === quickLookModal) {
+                closeQuickLook();
+            }
+        });
     }
     
-    return previewDiv;
-}
-
-// Also update the preview button event listener to handle multiple previews better
-const previewBtn = fileItem.querySelector('.preview-btn');
-previewBtn.addEventListener('click', async () => {
-    const existingPreview = fileItem.querySelector('.file-preview');
-    if (existingPreview) {
-        existingPreview.remove();
-        previewBtn.textContent = 'Preview';
-    } else {
-        previewBtn.textContent = 'Hide Preview';
+    // Show Quick Look modal
+    function showQuickLook(index, files) {
+        currentFileIndex = index;
+        currentFiles = files;
+        createQuickLookModal();
         
-        // Disable button while loading
-        previewBtn.disabled = true;
-        previewBtn.textContent = 'Loading...';
+        const modal = document.getElementById('quicklook-modal');
+        const errorDiv = document.getElementById('ql-error');
+        const contentDiv = modal.querySelector('#ql-content > div');
+        const filenameDiv = document.getElementById('ql-filename');
+        const filesizeDiv = document.getElementById('ql-filesize');
+        const counterDiv = document.getElementById('ql-counter');
+        
+        // Reset
+        errorDiv.style.display = 'none';
+        contentDiv.innerHTML = '';
+        
+        const file = files[index];
+        filenameDiv.textContent = file.filename;
+        filesizeDiv.textContent = formatBytes(file.blob.size);
+        counterDiv.textContent = `${index + 1} of ${files.length}`;
+        
+        // Update nav buttons
+        document.getElementById('ql-prev').style.display = index > 0 ? 'block' : 'none';
+        document.getElementById('ql-next').style.display = index < files.length - 1 ? 'block' : 'none';
+        
+        // Show loading
+        contentDiv.innerHTML = `
+            <div style="color: white; font-size: 16px; opacity: 0.8;">
+                Loading preview...
+            </div>
+        `;
+        
+        modal.style.display = 'flex';
+        
+        // Load preview
+        loadFilePreview(file, contentDiv, errorDiv);
+    }
+    
+    // Load file preview
+    async function loadFilePreview(file, container, errorDiv) {
+        const ext = file.filename.split('.').pop().toLowerCase();
         
         try {
-            const preview = await createFilePreview(filename, blob, url);
-            fileItem.appendChild(preview);
-            previewBtn.textContent = 'Hide Preview';
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'].includes(ext)) {
+                // Image preview
+                const img = document.createElement('img');
+                img.src = file.url;
+                img.style.cssText = `
+                    max-width: 90vw;
+                    max-height: 70vh;
+                    object-fit: contain;
+                    border-radius: 4px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                `;
+                img.onload = () => {
+                    container.innerHTML = '';
+                    container.appendChild(img);
+                };
+                img.onerror = () => showErrorPreview(container, errorDiv);
+                
+            } else if (['mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'].includes(ext)) {
+                // Audio preview
+                const audioContainer = document.createElement('div');
+                audioContainer.style.cssText = `
+                    background: rgba(255,255,255,0.05);
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 600px;
+                `;
+                
+                const audioIcon = document.createElement('div');
+                audioIcon.textContent = '🎵';
+                audioIcon.style.cssText = 'font-size: 48px; margin-bottom: 20px;';
+                
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                audio.src = file.url;
+                audio.style.cssText = 'width: 100%; margin: 20px 0;';
+                
+                const fileName = document.createElement('div');
+                fileName.textContent = file.filename;
+                fileName.style.cssText = 'font-size: 14px; opacity: 0.8; margin-top: 10px;';
+                
+                audioContainer.appendChild(audioIcon);
+                audioContainer.appendChild(audio);
+                audioContainer.appendChild(fileName);
+                
+                container.innerHTML = '';
+                container.appendChild(audioContainer);
+                
+            } else if (['mp4', 'webm', 'ogg', 'mov'].includes(ext)) {
+                // Video preview
+                const video = document.createElement('video');
+                video.controls = true;
+                video.src = file.url;
+                video.style.cssText = `
+                    max-width: 90vw;
+                    max-height: 70vh;
+                    border-radius: 4px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                `;
+                
+                container.innerHTML = '';
+                container.appendChild(video);
+                
+            } else if (['txt', 'json', 'js', 'py', 'html', 'css', 'md', 'xml', 'csv', 'log', 'yaml', 'yml'].includes(ext)) {
+                // Text preview
+                const text = await file.blob.text();
+                const pre = document.createElement('pre');
+                pre.style.cssText = `
+                    max-width: 80vw;
+                    max-height: 70vh;
+                    overflow: auto;
+                    text-align: left;
+                    background: rgba(255,255,255,0.05);
+                    color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                `;
+                
+                // Limit preview size
+                if (text.length > 100000) {
+                    pre.textContent = text.substring(0, 100000) + '\n\n... (file too large for preview)';
+                } else {
+                    pre.textContent = text;
+                }
+                
+                container.innerHTML = '';
+                container.appendChild(pre);
+                
+            } else if (['pdf'].includes(ext)) {
+                // PDF preview
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.cssText = `
+                    background: rgba(255,255,255,0.05);
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 400px;
+                `;
+                
+                pdfContainer.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 20px;">📕</div>
+                    <div style="font-size: 16px; margin-bottom: 15px; opacity: 0.9;">PDF Document</div>
+                    <div style="font-size: 14px; margin-bottom: 25px; opacity: 0.7;">${formatBytes(file.blob.size)}</div>
+                    <a href="${file.url}" target="_blank" style="
+                        display: inline-block;
+                        padding: 12px 24px;
+                        background: rgba(255,255,255,0.1);
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        border: 1px solid rgba(255,255,255,0.2);
+                        font-size: 14px;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='rgba(255,255,255,0.2)';" 
+                     onmouseout="this.style.background='rgba(255,255,255,0.1)';">
+                        Open in New Tab
+                    </a>
+                `;
+                
+                container.innerHTML = '';
+                container.appendChild(pdfContainer);
+                
+            } else {
+                // Generic preview for other file types
+                const genericContainer = document.createElement('div');
+                genericContainer.style.cssText = `
+                    background: rgba(255,255,255,0.05);
+                    padding: 40px;
+                    border-radius: 12px;
+                    max-width: 300px;
+                `;
+                
+                genericContainer.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 20px;">${getFileIcon(file.filename)}</div>
+                    <div style="font-size: 16px; margin-bottom: 10px; opacity: 0.9;">${ext.toUpperCase()} File</div>
+                    <div style="font-size: 14px; margin-bottom: 25px; opacity: 0.7;">${formatBytes(file.blob.size)}</div>
+                    <a href="${file.url}" download="${file.filename}" style="
+                        display: inline-block;
+                        padding: 12px 24px;
+                        background: rgba(59, 130, 246, 0.8);
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        transition: background 0.2s;
+                    " onmouseover="this.style.background='rgba(59, 130, 246, 1)';" 
+                     onmouseout="this.style.background='rgba(59, 130, 246, 0.8)';">
+                        Download File
+                    </a>
+                `;
+                
+                container.innerHTML = '';
+                container.appendChild(genericContainer);
+            }
         } catch (error) {
-            console.error('Preview failed:', error);
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'file-preview';
-            errorMsg.style.cssText = 'margin-top: 10px; padding: 10px; border: 1px solid #fecaca; border-radius: 5px; background: #fef2f2; color: #b91c1c;';
-            errorMsg.textContent = 'Failed to generate preview: ' + error.message;
-            fileItem.appendChild(errorMsg);
-            previewBtn.textContent = 'Preview';
-        } finally {
-            previewBtn.disabled = false;
+            console.error('Preview error:', error);
+            showErrorPreview(container, errorDiv);
         }
     }
-});
+    
+    function showErrorPreview(container, errorDiv) {
+        container.innerHTML = '';
+        errorDiv.style.display = 'block';
+    }
+    
+    function showPrevFile() {
+        if (currentFileIndex > 0) {
+            showQuickLook(currentFileIndex - 1, currentFiles);
+        }
+    }
+    
+    function showNextFile() {
+        if (currentFileIndex < currentFiles.length - 1) {
+            showQuickLook(currentFileIndex + 1, currentFiles);
+        }
+    }
+    
+    function closeQuickLook() {
+        if (quickLookModal) {
+            quickLookModal.style.display = 'none';
+        }
+    }
     
     // Main decrypt function
     async function decryptFiles() {
@@ -352,6 +588,7 @@ previewBtn.addEventListener('click', async () => {
             // Clear and start decrypting
             fileList.innerHTML = '';
             let successCount = 0;
+            const decryptedFiles = [];
             
             for (let i = 0; i < result.data.length; i++) {
                 try {
@@ -387,7 +624,15 @@ previewBtn.addEventListener('click', async () => {
                     const blob = new Blob([decryptedData]);
                     const url = URL.createObjectURL(blob);
                     
-                    // Create file item - black and white
+                    // Store for Quick Look
+                    decryptedFiles.push({
+                        filename,
+                        blob,
+                        url,
+                        index: i
+                    });
+                    
+                    // Create file item
                     const fileItem = document.createElement('div');
                     fileItem.className = 'file-item';
                     fileItem.innerHTML = `
@@ -395,24 +640,33 @@ previewBtn.addEventListener('click', async () => {
                         <div class="file-info">
                             <div class="file-name">
                                 <a href="${url}" download="${filename}">${filename}</a>
-                                <button class="preview-btn">Preview</button>
+                                <button class="preview-btn" data-index="${i}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    Preview
+                                </button>
                             </div>
                             <div class="file-size">${formatBytes(decryptedData.byteLength)}</div>
                         </div>
                     `;
                     
-                    // Preview button
+                    // Preview button - Quick Look
                     const previewBtn = fileItem.querySelector('.preview-btn');
-                    previewBtn.addEventListener('click', async () => {
-                        const existingPreview = fileItem.querySelector('.file-preview');
-                        if (existingPreview) {
-                            existingPreview.remove();
-                            previewBtn.textContent = 'Preview';
-                        } else {
-                            previewBtn.textContent = 'Hide Preview';
-                            const preview = await createFilePreview(filename, blob, url);
-                            fileItem.appendChild(preview);
+                    previewBtn.addEventListener('click', () => {
+                        showQuickLook(i, decryptedFiles);
+                    });
+                    
+                    // Also make the filename clickable for Quick Look
+                    const filenameLink = fileItem.querySelector('.file-name a');
+                    filenameLink.addEventListener('click', (e) => {
+                        if (e.ctrlKey || e.metaKey) {
+                            // Allow Ctrl/Cmd+click to download
+                            return;
                         }
+                        e.preventDefault();
+                        showQuickLook(i, decryptedFiles);
                     });
                     
                     fileList.appendChild(fileItem);
@@ -421,7 +675,6 @@ previewBtn.addEventListener('click', async () => {
                 } catch (error) {
                     console.error(`Failed to decrypt file ${i}:`, error);
                     
-                    // Error item - red for errors only
                     const errorItem = document.createElement('div');
                     errorItem.className = 'file-item error';
                     errorItem.innerHTML = `
@@ -436,7 +689,7 @@ previewBtn.addEventListener('click', async () => {
                 }
             }
             
-            // Show summary - black and white
+            // Show summary
             if (successCount > 0) {
                 const summary = document.createElement('div');
                 summary.style.cssText = 'margin-top: 20px; padding: 15px; background: #fafafa; border-radius: 10px; text-align: center; border: 1px solid #eee;';
@@ -445,10 +698,28 @@ previewBtn.addEventListener('click', async () => {
                         ✅ Successfully decrypted ${successCount} file${successCount !== 1 ? 's' : ''}
                     </p>
                     <p style="font-size: 14px; color: #666;">
-                        Click on file names to download. Files are decrypted in your browser.
+                        Click on file names to preview, or hold Ctrl/Cmd and click to download directly.
+                    </p>
+                    <p style="font-size: 12px; color: #888; margin-top: 10px;">
+                        Press spacebar on a file to open Quick Look preview
                     </p>
                 `;
                 fileList.appendChild(summary);
+                
+                // Add keyboard navigation for Quick Look
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        const focusedElement = document.activeElement;
+                        const fileItem = focusedElement.closest('.file-item');
+                        if (fileItem && !fileItem.classList.contains('error')) {
+                            const previewBtn = fileItem.querySelector('.preview-btn');
+                            if (previewBtn) {
+                                previewBtn.click();
+                            }
+                        }
+                    }
+                });
             } else {
                 fileList.innerHTML = `
                     <div style="text-align: center; padding: 30px;">
@@ -492,5 +763,5 @@ previewBtn.addEventListener('click', async () => {
         });
     }
     
-    console.log("download.js loaded");
+    console.log("download.js loaded with Quick Look preview");
 });
