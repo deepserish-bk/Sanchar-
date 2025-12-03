@@ -6,12 +6,35 @@
   <title>Sanchar – Secure File Sharing</title>
   <link rel="stylesheet" href="/static/css/style.css"/>
   <link rel="stylesheet" href="/static/css/upload.css"/>
+  <!-- REMOVE QR Code Library -->
   <style>
     .file-item {
       position: relative;
       padding-right: 40px;
     }
-    
+    /* Add to existing email modal styles */
+textarea.email-input {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.email-modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+#generated-email {
+  transition: all 0.3s ease;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+  font-weight: 500;
+}
     .remove-file {
       position: absolute;
       right: 10px;
@@ -39,6 +62,97 @@
     .remove-file:hover {
       background: #dc2626;
     }
+    
+    /* Progress Bar Styles */
+    #progress-container {
+      display: none;
+      margin-top: 1rem;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    
+    .progress-bar-bg {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #10b981, #059669);
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #file-progress {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    /* Email Modal Styles */
+    .email-modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+    
+    .email-input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 15px 0;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    .email-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .email-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+      transition: transform 0.2s;
+    }
+    
+    .email-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .email-btn.secondary {
+      background: #6b7280;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -55,6 +169,18 @@
 
       <div id="file-list" class="file-list"></div>
       <div id="summary" class="summary"></div>
+    </div>
+
+    <!-- Progress Bar Container -->
+    <div id="progress-container" class="progress-container">
+      <div class="progress-header">
+        <span id="progress-text">Preparing...</span>
+        <span id="progress-percent">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="progress-bar" class="progress-bar-fill"></div>
+      </div>
+      <div id="file-progress"></div>
     </div>
 
     <div class="controls" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
