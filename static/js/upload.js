@@ -23,6 +23,33 @@ dropZone.addEventListener('click', (e) => {
   }
 });
 
+// Simple password hint
+passwordInput.addEventListener('input', function() {
+  const hint = document.getElementById('password-hint');
+  const text = document.getElementById('strength-text');
+  
+  if (!hint || !text) return;
+  
+  if (this.value.length === 0) {
+    hint.style.display = 'none';
+    return;
+  }
+  
+  hint.style.display = 'block';
+  
+  // Super simple logic
+  if (this.value.length < 6) {
+    text.textContent = 'Weak';
+    text.style.color = '#e53e3e';
+  } else if (this.value.length < 10) {
+    text.textContent = 'Good';
+    text.style.color = '#ecc94b';
+  } else {
+    text.textContent = 'Strong';
+    text.style.color = '#38a169';
+  }
+});
+
 // Handle file selection
 fileInput.addEventListener('change', () => {
   if (fileInput.files.length > 0) {
