@@ -1,47 +1,57 @@
+# Sanchar - Secure File Sharing 🔒
 
-Sanchar - Private File Sharing
+Simple, private, end-to-end encrypted file sharing that expires automatically.
 
-A simple web app to share files securely. Files get encrypted in your browser before uploading. Only people with the secret key can decrypt them.
+## ✨ Features
+- **End-to-End Encryption**: Files encrypted in browser before upload
+- **Automatic Expiry**: Links expire after chosen time (1h, 24h, 7d)
+- **No Server Access**: Server never sees your unencrypted files
+- **Drag & Drop**: Easy file upload interface
+- **Mobile Friendly**: Works on all modern browsers
+- **Download Statistics**: Track your shared files
 
-What It Does
+## 🚀 Quick Start
 
-Upload files → Encrypts them in your browser → Get a shareable link
-Share link + key → Friend opens link → Enters key → Downloads decrypted files
-Server never sees your actual files, only encrypted data
-How to Run It
+### 1. Setup Environment
+# Clone the repository
+git clone https://github.com/yourusername/Sanchar-
+cd Sanchar-
 
-Make sure you have Python installed
-Install the needed packages:
-bash
-pip install fastapi uvicorn
-Run the server:
-bash
+# Create virtual environment (if not exists)
+python -m venv venv
+
+# Activate it
+# On macOS/Linux:
+source venv/bin/activate
+# On Windows:
+# venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+### 2. Run the Application
+# Start the server
+python main.py
+
+# Or with uvicorn directly
 uvicorn main:app --reload
-Open browser: http://localhost:8000
-Features
 
-Drag & drop files to upload
-Choose how long links last (1 hour, 24 hours, 7 days)
-Optional password protection
-Copy links/keys easily
-Share via WhatsApp or email
-See download statistics
-Preview images/text before downloading
-Works on phone browsers too
-Tech Stuff
+### 3. Open in Browser
+http://localhost:8000
 
-Backend: FastAPI (Python)
-Frontend: Plain HTML/JavaScript
-Encryption: Browser's built-in Web Crypto API
-No databases: Files stored in memory (disappear when server restarts)
-Files in the Project
+## 📁 Project Structure
+Sanchar/
+├── main.py              # Main FastAPI application
+├── static/              # CSS, JavaScript files
+├── templates/           # HTML templates
+├── screenshots/         # Application screenshots
+└── requirements.txt     # Python dependencies
 
-main.py - The Python server code
-templates/ - HTML pages (upload & download)
-static/ - CSS and JavaScript files
-requirements.txt - List of Python packages needed
-Note
+## 🤝 Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-This is meant for personal use/testing. Files don't get saved permanently - they disappear when you stop the server.
-
-Made with love from Nepal to Italy ❤️
+Made with ❤️ from Nepal to Italy
