@@ -14,6 +14,7 @@ Simple, private, end-to-end encrypted file sharing that expires automatically.
 
 ### 1. Setup Environment
 # Clone the repository
+```bash
 git clone https://github.com/yourusername/Sanchar-
 cd Sanchar-
 
@@ -35,18 +36,19 @@ python main.py
 
 # Or with uvicorn directly
 uvicorn main:app --reload
-
+```
 ### 3. Open in Browser
 http://localhost:8000
 
 ## 📁 Project Structure
+```bash
 Sanchar/
 ├── main.py              # Main FastAPI application
 ├── static/              # CSS, JavaScript files
 ├── templates/           # HTML templates
 ├── screenshots/         # Application screenshots
 └── requirements.txt     # Python dependencies
-
+```
 ## 🤝 Contributing
 1. Fork the repository
 2. Create a feature branch
