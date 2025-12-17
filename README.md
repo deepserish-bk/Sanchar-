@@ -15,7 +15,7 @@ Simple, private, end-to-end encrypted file sharing that expires automatically.
 ### 1. Setup Environment
 # Clone the repository
 ```bash
-git clone https://github.com/yourus/Sanchar-
+git clone https://github.com/deepserish-bk/Sanchar-
 cd Sanchar-
 
 # Create virtual environment (if not exists)
