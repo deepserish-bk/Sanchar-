@@ -1,4 +1,4 @@
-# Sanchar - Secure File Sharing 🔒
+# Sanchar - Secure File Sharing
 
 Simple, private, end-to-end encrypted file sharing that expires automatically.
 
@@ -15,7 +15,7 @@ Simple, private, end-to-end encrypted file sharing that expires automatically.
 ### 1. Setup Environment
 # Clone the repository
 ```bash
-git clone https://github.com/yourusername/Sanchar-
+git clone https://github.com/yourus/Sanchar-
 cd Sanchar-
 
 # Create virtual environment (if not exists)
